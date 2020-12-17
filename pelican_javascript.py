@@ -44,7 +44,7 @@ def add_files(gen, metadata):
     if  gen.settings['CDNURL'] is not None:
         site_url = gen.settings['CDNURL']
 
-    print(metadata)
+
     formatters = {'stylesheets': '<link rel="stylesheet" href="{0}" type="text/css" />',
                   'javascripts': '<script src="{0}"></script>',
                   'javascriptversioned': '<script src="{0}-{1}.js"></script>'}
