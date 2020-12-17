@@ -34,16 +34,24 @@ def copy_resources(src, dest, file_list):
         shutil.copy2(file_src, dest)
 
 def add_files(gen, metadata):
+
     """
     The registered handler for the dynamic resources plugin. It will
     add the javascripts and/or stylesheets to the article
     """
     site_url = gen.settings['SITEURL']
+
+    if  gen.settings['CDNURL'] is not None:
+        site_url = gen.settings['CDNURL']
+
+    print(metadata)
     formatters = {'stylesheets': '<link rel="stylesheet" href="{0}" type="text/css" />',
-                  'javascripts': '<script src="{0}"></script>'}
+                  'javascripts': '<script src="{0}"></script>',
+                  'javascriptversioned': '<script src="{0}-{1}.js"></script>'}
     dirnames = {'stylesheets': 'css',
-                'javascripts': 'js'}
-    for key in ['stylesheets', 'javascripts']:
+                'javascripts': 'js',
+                'javascriptversioned': 'js'}
+    for key in ['stylesheets', 'javascripts', 'javascriptversioned']:
         if key in metadata:
             files = metadata[key].replace(" ", "").split(",")
             htmls = []
@@ -55,9 +63,10 @@ def add_files(gen, metadata):
                         link = "%s/%s" % (dirnames[key], f)
                     else:
                         link = "%s/%s/%s" % (site_url, dirnames[key], f)
-                html = formatters[key].format(link)
+                html = formatters[key].format(link, metadata['version'])
                 htmls.append(html)
             metadata[key] = htmls
+            #print(htmls)
 
 def move_resources(gen):
     """
