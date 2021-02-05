@@ -35,6 +35,10 @@ def copy_resources(src, dest, file_list):
 
 def add_files(gen, metadata):
 
+    print(gen)
+    #print("slug")
+    #print(metadata)
+
     """
     The registered handler for the dynamic resources plugin. It will
     add the javascripts and/or stylesheets to the article
@@ -44,14 +48,16 @@ def add_files(gen, metadata):
     if  gen.settings['CDNURL'] is not None:
         site_url = gen.settings['CDNURL']
 
-
     formatters = {'stylesheets': '<link rel="stylesheet" href="{0}" type="text/css" />',
+                  'stylesheetsmin': '<link rel="stylesheet" href="{0}.min.css" type="text/css" />',
                   'javascripts': '<script src="{0}"></script>',
                   'javascriptversioned': '<script src="{0}-{1}.js"></script>'}
     dirnames = {'stylesheets': 'css',
+                'stylesheetsmin': 'css',
                 'javascripts': 'js',
                 'javascriptversioned': 'js'}
-    for key in ['stylesheets', 'javascripts', 'javascriptversioned']:
+    #for key in ['stylesheets', 'stylesheetsmin', 'javascripts', 'javascriptversioned']:
+    for key in ['stylesheets', 'javascripts']:
         if key in metadata:
             files = metadata[key].replace(" ", "").split(",")
             htmls = []
@@ -63,12 +69,24 @@ def add_files(gen, metadata):
                         link = "%s/%s" % (dirnames[key], f)
                     else:
                         link = "%s/%s/%s" % (site_url, dirnames[key], f)
-                html = formatters[key].format(link, metadata['version'])
+                html = formatters[key].format(link)
                 htmls.append(html)
             metadata[key] = htmls
             #print(htmls)
 
+    for key in ['stylesheetsmin', 'javascriptversioned']:
+        if key in metadata:
+            files = metadata[key].replace(" ", "").split(",")
+            htmls = []
+            for f in files:
+                link = "%s/%s" % (dirnames[key], f)
+               #html = formatters[key].format(link, metadata['version'])
+                htmls.append(link)
+            metadata[key] = htmls
+#            print(metadata[key])
+
 def move_resources(gen):
+
     """
     Move files from js/css folders to output folder
     """
@@ -86,6 +104,7 @@ def register():
     """
     Plugin registration
     """
+    #signals.content_object_init.connect(override_metadata)
     signals.article_generator_context.connect(add_files)
     signals.page_generator_context.connect(add_files)
     signals.article_generator_finalized.connect(move_resources)
